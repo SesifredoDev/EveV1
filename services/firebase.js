@@ -28,9 +28,8 @@ const firebaseConfig = {
 
   
   //signUp
-  fbSignUp = (email, password, name) =>{
-    
-    createUserWithEmailAndPassword(auth, email, password)
+  fbSignUp = async(email, password, name) =>{
+    return( await createUserWithEmailAndPassword(auth, email, password)
   .then((userCredential) => {
     var user = userCredential.user;
     usersRef.doc(user.uid).set ({
@@ -38,14 +37,14 @@ const firebaseConfig = {
       name: name,
       email: email,
     })     
+    return user
     
   })
   .catch((error) => {
     const errorCode = error.code;
     const errorMessage = error.message;
-    console.log(errorCode + errorMessage)
-    // ..
-  });
+    return(errorCode + errorMessage)
+  }));
   }
   
   fbLogIn = async (email, password)=>{

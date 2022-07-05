@@ -37,8 +37,8 @@ server.listen(3000, ()=>{
     console.log('lsitening')
 } );
 io.on("connection", (socket)=>{
+    //Device Connection
     clients.push({id: socket.id, userUid:null, deviceType: socket.handshake.query.deviceType})
-    console.log(clients)
 
 
     // login
@@ -47,7 +47,10 @@ io.on("connection", (socket)=>{
         login = await fbLogIn(data.email, data.password)
         if (login.uid !== undefined){ //worked!
             userData = await getData(login)
+            client.userUid = userData.id
             io.to(client.id).emit('valid', userData);
+            socket.join(client.uid)
+            socket.to(client.uid).emit("valid", client.deviceType + "joined")
         }else{ //error
             console.log(login)
             io.to(client.id).emit('valid', login);
@@ -56,18 +59,16 @@ io.on("connection", (socket)=>{
     })
 
     // SignUp
-    socket.on('signUp', (data) => {
+    socket.on('signUp', async(data) => {
         client = clients.find(x => x.id === socket.id)
-        fbSignUp(data.email, data.password, data.name)
-        io.to(client.id).emit('valid', "worked" );
+        signup = await fbSignUp(data.email, data.password, data.name)
+        io.to(client.id).emit('valid', signup );
     })
 
+    //disconnected Device
     socket.on('disconnect', function() {
         removeByAttr(clients, 'id', socket.id);   
     });
-    socket.on("sendMessage", (data)=> {
-        console.log(clients)
-    })
 
 
     
