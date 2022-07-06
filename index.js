@@ -39,7 +39,7 @@ server.listen(3000, ()=>{
 io.on("connection", (socket)=>{
     //Device Connection
     clients.push({id: socket.id, userUid:null, deviceType: socket.handshake.query.deviceType})
-
+    console.log(clients)
 
     // login
     socket.on('login', async (data) => {
@@ -64,7 +64,10 @@ io.on("connection", (socket)=>{
         signup = await fbSignUp(data.email, data.password, data.name)
         io.to(client.id).emit('valid', signup );
     })
-
+    //msg
+    socket.on('msg', (data) =>{
+        console.log(data)
+    })
     //disconnected Device
     socket.on('disconnect', function() {
         removeByAttr(clients, 'id', socket.id);   
